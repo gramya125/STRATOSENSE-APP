@@ -3,17 +3,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
 
-// Define pollution data points for Faridabad
-const faridabadPollutionData = [
-  { lat: 28.4089, lng: 77.3178, intensity: 0.9, name: "City Center" }, // High pollution
-  { lat: 28.4209, lng: 77.3088, intensity: 0.7, name: "Sector 15" },
-  { lat: 28.3959, lng: 77.3268, intensity: 0.85, name: "Old Faridabad" },
-  { lat: 28.4339, lng: 77.2998, intensity: 0.6, name: "Sector 12" },
-  { lat: 28.3809, lng: 77.3358, intensity: 0.75, name: "Ballabgarh" },
-  { lat: 28.4189, lng: 77.2898, intensity: 0.5, name: "Sector 16" },
-  { lat: 28.4089, lng: 77.3378, intensity: 0.8, name: "Sector 21" },
-  { lat: 28.3909, lng: 77.3088, intensity: 0.65, name: "Sector 28" },
-];
+// We'll generate heatmap points around Faridabad center and map intensity from latest overall AQI
+const defaultCenter = { lat: 28.4089, lng: 77.3178 };
 
 const PollutionHeatmap = () => {
   const mapRef = useRef<L.Map | null>(null);
@@ -37,38 +28,55 @@ const PollutionHeatmap = () => {
       maxZoom: 19,
     }).addTo(map);
 
-    // Add pollution markers with circles
-    faridabadPollutionData.forEach((point) => {
-      const color = getColorByIntensity(point.intensity);
-      const radius = point.intensity * 300 + 100;
+    const latest = (window as any).__LATEST_AQI_PAYLOAD ?? null;
+    const baseAqi = latest?.overallAqi ?? 50;
 
-      // Create circle marker
+    // Build points - prefer window.__STATIONS array if provided by user
+    const stations: Array<{ lat: number; lng: number; name?: string }> = (window as any).__STATIONS ?? [];
+    const points: Array<{ lat: number; lng: number; name: string; intensity: number }> = [];
+
+    if (stations.length) {
+      for (const s of stations) {
+        const intensity = Math.min(1, Math.max(0, (baseAqi - 20) / 200));
+        points.push({ lat: s.lat, lng: s.lng, intensity, name: s.name ?? "Station" });
+      }
+    } else {
+      // fallback grid points around center
+      const offsets = [0, 0.003, -0.003, 0.006, -0.006];
+      let idx = 0;
+      for (const ox of offsets) {
+        for (const oy of offsets) {
+          const intensity = Math.min(1, Math.max(0, (baseAqi - 20) / 200));
+          points.push({ lat: defaultCenter.lat + ox, lng: defaultCenter.lng + oy, intensity, name: `Area ${++idx}` });
+        }
+      }
+    }
+
+    // Add pollution markers with circles based on computed intensities
+    points.forEach((point) => {
+      const color = getColorByIntensity(point.intensity);
+      const radius = point.intensity * 400 + 100;
+
       const circle = L.circle([point.lat, point.lng], {
         color: color,
         fillColor: color,
-        fillOpacity: 0.4,
+        fillOpacity: 0.45,
         radius: radius,
         weight: 2,
       }).addTo(map);
 
-      // Add popup with pollution info
       circle.bindPopup(`
         <div class="p-2">
           <h3 class="font-bold text-sm mb-1">${point.name}</h3>
-          <p class="text-xs">AQI Level: ${getAQILabel(point.intensity)}</p>
+          <p class="text-xs">AQI (approx): ${Math.round(baseAqi)}</p>
           <p class="text-xs">Intensity: ${(point.intensity * 100).toFixed(0)}%</p>
         </div>
       `);
 
-      // Add pulsing animation effect
-      const pulsingCircle = L.circle([point.lat, point.lng], {
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.2,
-        radius: radius * 1.5,
-        weight: 1,
-        className: "pulse-circle",
-      }).addTo(map);
+      circle.on('click', () => {
+        // user clicked area — fire an event so AQIFetcher or other listener can act (e.g., fetch local AQI)
+        window.dispatchEvent(new CustomEvent('heatmap-area-clicked', { detail: { lat: point.lat, lon: point.lng } }));
+      });
     });
 
     // Cleanup
