@@ -9,14 +9,16 @@ import Forecast from "./pages/Forecast";
 import HealthAlerts from "./pages/HealthAlerts";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import BackgroundVideo from "./components/BackgroundVideo";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
+  <Toaster />
+  <Sonner />
+      <BackgroundVideo opacity={0.18} />
       <BrowserRouter>
         <div className="min-h-screen w-full">
           <Navigation />

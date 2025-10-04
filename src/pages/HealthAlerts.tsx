@@ -27,7 +27,13 @@ const HealthAlerts = () => {
   const [payload, setPayload] = useState<any>((window as any).__LATEST_AQI_PAYLOAD ?? null);
   const [symptomsInput, setSymptomsInput] = useState<string>("");
   const [recordedSymptoms, setRecordedSymptoms] = useState<string[]>([]);
-  const [effectsText, setEffectsText] = useState<string | null>(null);
+  const [effectsData, setEffectsData] = useState<{
+    summary: string;
+    pollutants: string[];
+    reportedSymptoms: string[];
+    extra?: string;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const handler = (e: any) => setPayload(e.detail ?? null);
@@ -40,10 +46,8 @@ const HealthAlerts = () => {
 
   function computeEffectsFromPayload(payload: any, symptoms: string[]) {
     const aqi = payload?.overallAqi ?? null;
-    // base recommendation from AQI
     const base = getSymptom(aqi);
 
-    // include pollutant details if available
     const comps = payload?.components ?? {};
     const individual = payload?.individualAqis ?? {};
     const pollutantLines: string[] = [];
@@ -54,7 +58,6 @@ const HealthAlerts = () => {
     if (comps?.o3 != null) pollutantLines.push(`O3: ${Number(comps.o3).toFixed(2)} µg/m³ (IAQI ${Math.round(individual?.['O3'] ?? 0)})`);
     if (comps?.co != null) pollutantLines.push(`CO: ${Number(comps.co).toFixed(2)} µg/m³ (IAQI ${Math.round(individual?.['CO'] ?? 0)})`);
 
-    // analyze recorded symptoms for stronger guidance
     const s = (symptoms || []).map((x) => x.toLowerCase());
     const hasCough = s.some((t) => t.includes("cough") || t.includes("throat") || t.includes("sore"));
     const hasBreath = s.some((t) => t.includes("short") || t.includes("breath") || t.includes("wheeze") || t.includes("difficulty"));
@@ -68,17 +71,12 @@ const HealthAlerts = () => {
       extra = "Monitor symptoms closely and limit outdoor exertion if they worsen.";
     }
 
-    const parts = [];
-    parts.push(`AQI summary: ${base}`);
-    if (pollutantLines.length) {
-      parts.push(`Pollutants: ${pollutantLines.join(' · ')}`);
-    }
-    if (symptoms.length) {
-      parts.push(`Reported symptoms: ${symptoms.join(', ')}`);
-    }
-    if (extra) parts.push(extra);
-
-    return parts.join(' \n');
+    return {
+      summary: base,
+      pollutants: pollutantLines,
+      reportedSymptoms: symptoms || [],
+      extra: extra || undefined,
+    };
   }
 
   return (
@@ -120,7 +118,7 @@ const HealthAlerts = () => {
             <h3 className="text-2xl font-semibold mb-3">Record your symptoms</h3>
             <p className="text-sm text-muted-foreground mb-4">Type symptoms (comma separated) and click Record to add them to your personal log. We'll visualize counts below.</p>
             <div className="mb-4">
-              <textarea value={symptomsInput} onChange={(e) => setSymptomsInput(e.target.value)} className="w-full p-4 rounded-md border border-border mb-3 min-h-[80px]" placeholder="e.g. cough, sore throat, shortness of breath" />
+              <textarea value={symptomsInput} onChange={(e) => setSymptomsInput(e.target.value)} className="w-full p-4 rounded-md border border-border mb-3 min-h-[80px] text-black" placeholder="e.g. cough, sore throat, shortness of breath" />
               <div className="flex gap-3">
                 <button className="px-4 py-2 bg-primary text-white rounded" onClick={() => {
                   const items = symptomsInput.split(',').map(s => s.trim()).filter(Boolean);
@@ -157,17 +155,84 @@ const HealthAlerts = () => {
             <h3 className="text-2xl font-semibold mb-3">Effects</h3>
             <p className="text-sm text-muted-foreground mb-4">Click the button below to get health recommendations based on current AQI.</p>
             <div className="flex flex-col gap-3">
-              <button className="px-4 py-3 bg-primary text-white rounded" onClick={() => {
-                const latest = (window as any).__LATEST_AQI_PAYLOAD ?? payload;
-                setEffectsText(computeEffectsFromPayload(latest, recordedSymptoms));
-              }}>Effects</button>
-              <button className="px-4 py-3 bg-muted rounded" onClick={() => setEffectsText(null)}>Clear</button>
+              <button
+                className="btn-premium inline-flex items-center gap-2"
+                onClick={() => {
+                  const latest = (window as any).__LATEST_AQI_PAYLOAD ?? payload;
+                  setEffectsData(computeEffectsFromPayload(latest, recordedSymptoms));
+                  setCopied(false);
+                }}
+                aria-label="Generate health effects and advice"
+              >
+                <Info className="h-4 w-4" />
+                Effects & Advice
+              </button>
+              <button className="px-4 py-2 bg-muted rounded text-sm" onClick={() => { setEffectsData(null); setCopied(false); }}>Clear</button>
             </div>
 
-            {effectsText && (
-              <div className="mt-6 bg-muted/20 p-4 rounded">
-                <h4 className="font-semibold">Recommended Actions</h4>
-                <p className="text-sm text-muted-foreground">{effectsText}</p>
+            {effectsData && (
+              <div className="mt-6 card-premium p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-semibold text-lg">Recommended Actions</h4>
+                    <p className="text-sm text-muted-foreground mt-1">Based on current AQI and your recorded symptoms</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className={`px-3 py-1 rounded text-sm bg-secondary/10 hover:bg-secondary/20`}
+                      onClick={async () => {
+                        try {
+                          const lines = [
+                            `AQI: ${payload?.overallAqi != null ? Math.round(payload.overallAqi) : '—'}`,
+                            `Summary: ${effectsData.summary}`,
+                            ...(effectsData.pollutants.length ? ['Pollutants:', ...effectsData.pollutants.map(p => ` - ${p}`)] : []),
+                            ...(effectsData.reportedSymptoms.length ? [`Reported symptoms: ${effectsData.reportedSymptoms.join(', ')}`] : []),
+                            ...(effectsData.extra ? [effectsData.extra] : []),
+                          ].join('\n');
+                          await navigator.clipboard.writeText(lines);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        } catch (err) {
+                          // ignore clipboard errors
+                        }
+                      }}
+                    >{copied ? 'Copied' : 'Copy'}</button>
+                    <button className="px-3 py-1 rounded text-sm bg-muted/10 hover:bg-muted/20" onClick={() => { setEffectsData(null); setCopied(false); }}>Close</button>
+                  </div>
+                </div>
+
+                <div className="text-sm">
+                  <p className="font-medium">{effectsData.summary}</p>
+                </div>
+
+                {effectsData.pollutants.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-semibold mb-1">Pollutants</h5>
+                    <ul className="text-sm list-disc list-inside space-y-0.5">
+                      {effectsData.pollutants.map((p, i) => (
+                        <li key={i} className="text-muted-foreground">{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {effectsData.reportedSymptoms.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-semibold mb-1">Your reported symptoms</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {effectsData.reportedSymptoms.map((s, i) => (
+                        <span key={i} className="px-2 py-1 text-xs bg-muted rounded-full">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {effectsData.extra && (
+                  <div>
+                    <h5 className="text-sm font-semibold mb-1">Additional advice</h5>
+                    <p className="text-sm text-muted-foreground">{effectsData.extra}</p>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>

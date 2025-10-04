@@ -186,6 +186,17 @@ const Settings = () => {
                 </div>
                 <Switch defaultChecked />
               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-foreground">Background video</p>
+                  <p className="text-sm text-muted-foreground">Play animated background video (may consume bandwidth)</p>
+                </div>
+                <Switch id="backgroundVideoToggle" defaultChecked={localStorage.getItem('strato:bgVideo') !== 'false'} onCheckedChange={(v) => {
+                  const enabled = Boolean(v);
+                  localStorage.setItem('strato:bgVideo', enabled ? 'true' : 'false');
+                  window.dispatchEvent(new CustomEvent('bg-video-toggle', { detail: { enabled } }));
+                }} />
+              </div>
             </div>
           </motion.div>
 

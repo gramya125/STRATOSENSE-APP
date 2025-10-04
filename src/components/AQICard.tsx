@@ -12,17 +12,17 @@ interface AQICardProps {
 
 const AQICard = ({ title, value, unit, icon: Icon, level = "good", delay = 0 }: AQICardProps) => {
   const levelStyles = {
-    good: "from-success/20 to-success/5 border-success/30",
-    moderate: "from-warning/20 to-warning/5 border-warning/30",
-    unhealthy: "from-destructive/20 to-destructive/5 border-destructive/30",
-    dangerous: "from-destructive/30 to-destructive/10 border-destructive/40",
+    good: "from-aqi-background/30 to-aqi-card/10 border border-border",
+    moderate: "from-aqi-background/30 to-aqi-card/10 border border-border",
+    unhealthy: "from-aqi-background/30 to-aqi-card/10 border border-border",
+    dangerous: "from-aqi-background/30 to-aqi-card/10 border border-border",
   };
 
   const iconStyles = {
-    good: "text-success",
-    moderate: "text-warning",
-    unhealthy: "text-destructive",
-    dangerous: "text-destructive",
+    good: "text-aqi-red",
+    moderate: "text-aqi-orange",
+    unhealthy: "text-aqi-yellow",
+    dangerous: "text-aqi-red",
   };
 
   return (
@@ -31,16 +31,16 @@ const AQICard = ({ title, value, unit, icon: Icon, level = "good", delay = 0 }: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-gradient-to-br ${levelStyles[level]} border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all`}
+      className={`bg-gradient-to-br ${levelStyles[level]} rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all card-premium`}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl bg-card ${iconStyles[level]}`}>
+        <div className={`p-3 rounded-xl bg-gradient-to-br from-gray-800 to-transparent ${iconStyles[level]}`}>
           <Icon className="h-6 w-6" />
         </div>
       </div>
       <h3 className="text-sm font-medium text-muted-foreground mb-2">{title}</h3>
       <div className="flex items-baseline gap-2">
-        <span className="text-3xl font-bold text-foreground">{value}</span>
+        <span className="text-3xl md:text-4xl font-extrabold text-foreground">{value}</span>
         {unit && <span className="text-lg text-muted-foreground">{unit}</span>}
       </div>
     </motion.div>

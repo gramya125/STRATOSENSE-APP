@@ -65,6 +65,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Premium AQI palette (convenience names)
+        'aqi-red': '#ef4444',
+        'aqi-orange': '#fb923c',
+        'aqi-yellow': '#fbbf24',
+        'aqi-soft-red': '#fee2e2',
+        'aqi-background': '#141b23',
+        'aqi-card': '#1a2534',
       },
       borderRadius: {
         lg: "var(--radius)",

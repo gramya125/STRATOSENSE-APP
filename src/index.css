@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -45,9 +47,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
     
-    --gradient-sky: linear-gradient(135deg, hsl(200, 80%, 60%), hsl(220, 70%, 65%));
+  --gradient-sky: linear-gradient(135deg, hsl(200, 80%, 60%), hsl(220, 70%, 65%));
     --gradient-earth: linear-gradient(135deg, hsl(140, 60%, 50%), hsl(160, 55%, 45%));
     --gradient-alert: linear-gradient(135deg, hsl(38, 90%, 60%), hsl(0, 80%, 60%));
+  --premium-accent-1: 196 78% 49%; /* cyan */
+  --premium-accent-2: 270 60% 52%; /* purple */
+  --premium-accent-3: 44 100% 55%; /* gold */
     
     --shadow-card: 0 2px 8px -2px hsl(200 80% 60% / 0.15);
     --shadow-card-hover: 0 8px 24px -4px hsl(200 80% 60% / 0.25);
@@ -109,6 +114,41 @@ All colors MUST be HSL.
   }
 }
 
+:root {
+  --ui-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+@layer base {
+  body {
+    font-family: var(--ui-font);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5 {
+    letter-spacing: -0.01em;
+  }
+
+  .btn-premium {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white shadow-lg;
+    background: linear-gradient(90deg, rgba(34,193,195,1) 0%, rgba(106,17,203,1) 100%);
+  }
+
+  .card-premium {
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -10px rgba(20,20,40,0.6);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  /* nicer legend for recharts pie */
+  .recharts-legend-item text {
+    font-weight: 600;
+    fill: rgba(255,255,255,0.9);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -116,5 +156,13 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* allow video to show through by using transparent background here; gradients applied to panels/cards */
+    background: transparent;
+  }
+
+  /* utility overlay to use on panels when you want a slightly lighter backdrop */
+  .site-overlay {
+    background: linear-gradient(180deg, rgba(255,236,192,0.03), rgba(255,194,155,0.02));
+    border: 1px solid rgba(255,255,255,0.02);
   }
 }

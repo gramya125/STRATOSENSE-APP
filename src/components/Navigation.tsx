@@ -20,13 +20,27 @@ const Navigation = () => {
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-gradient-to-br from-primary to-accent p-2 rounded-xl group-hover:scale-110 transition-transform">
-              <Wind className="h-6 w-6 text-white" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="p-1 rounded-2xl bg-gradient-to-br from-primary/90 to-accent/90 shadow-lg transform-gpu transition-transform group-hover:scale-105">
+              {/* prettier-ignore */}
+              <svg className="h-11 w-11" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="1">
+                    <stop offset="0%" stopColor="#22c1c3" />
+                    <stop offset="100%" stopColor="#6a11cb" />
+                  </linearGradient>
+                </defs>
+                <rect width="64" height="64" rx="14" fill="url(#g1)" />
+                <path d="M18 36c6-8 10-12 22-12" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="42" cy="22" r="3.5" fill="#fff" />
+              </svg>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Stratosense
-            </span>
+            <div className="flex flex-col">
+              <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground" style={{ letterSpacing: '-0.02em' }}>
+                Stratosense
+              </span>
+              <span className="text-xs md:text-sm text-muted-foreground hidden md:inline">Predictive air quality</span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
