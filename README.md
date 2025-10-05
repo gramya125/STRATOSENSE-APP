@@ -1,13 +1,106 @@
-This project, STRATOSENSE-APP, is a web application designed for air quality monitoring, forecasting, and health alerts. It provides real-time data visualization, interactive dashboards, and predictive analytics using a machine learning Decision Tree model.
+STRATOSENSE-APP
+A web application for real-time air quality monitoring, forecasting, and health alerts. It integrates data visualization, machine learning, and responsive UI to help users track and predict air quality trends.
 
-Key features and details:
+Features
+Live AQI, pollutant metrics, and charts with geographic heatmaps
 
-The frontend is built with React (TypeScript), Vite, and Tailwind CSS, offering a fast, responsive, and modern user interface.
-The backend is developed in Python (using FastAPI or a similar framework), handling API requests, data processing, and serving machine learning predictions.
-A Decision Tree machine learning model is used to predict air quality metrics based on environmental data.
-Data visualization is achieved using Chart.js, enabling users to view trends, heatmaps, and forecasts.
-The app includes health alerts based on AQI (Air Quality Index) and provides a user-friendly dashboard for monitoring.
-Package management is handled by npm (for frontend) and pip (for backend).
-Linting and code quality are maintained with ESLint.
-The project structure supports modular development, with clear separation of frontend, backend, and machine learning components.
-Overall, STRATOSENSE-APP enables users to monitor air quality, receive forecasts and health alerts, and visualize environmental data in an accessible and interactive way.
+Forecasting powered by Decision Tree machine learning
+
+Automated health alerts when air quality becomes hazardous
+
+Intuitive dashboard for data exploration
+
+Technology Stack
+Component	Technology
+Frontend	React, TypeScript, Vite, Tailwind CSS, Chart.js
+Backend	Python, FastAPI
+ML Model	Decision Tree (scikit-learn)
+Linting	ESLint
+Packages	npm (frontend), pip (backend)
+Structure
+text
+STRATOSENSE-APP/
+├── public/           # Static files
+├── src/              # React code
+├── server/           # Python API + ML
+├── models/           # ML scripts/models
+├── package.json      # Frontend dependencies
+├── requirements.txt  # Backend dependencies
+└── README.md
+Setup
+Frontend
+text
+npm install
+npm run dev
+Backend
+text
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn server.main:app --reload
+Usage
+Open http://localhost:5173 to view the dashboard, explore air quality data, receive forecasts, and monitor alerts.
+
+Contributing
+Fork the repository
+
+Make your changes
+
+Submit a pull request
+
+Run npm run lint before submitting
+
+License
+MIT License
+
+STRATOSENSE-APP helps users monitor and react to air quality changes with simplicity and accuracy.# STRATOSENSE-APP
+
+STRATOSENSE-APP is a web application for air quality monitoring, forecasting, and health alerts. It features real-time dashboards with predictive analytics and interactive charts, powered by a machine learning Decision Tree model.
+
+Features
+Real-time AQI, pollutant tracking, and heatmaps
+
+Forecasting with Decision Tree ML model
+
+Automated health alerts
+
+Interactive dashboard interface
+
+Tech Stack
+Component	Tech Stack
+Frontend	React, TypeScript, Vite, Tailwind CSS, Chart.js
+Backend	Python (FastAPI)
+ML Model	Decision Tree (scikit-learn)
+Packages	npm (frontend), pip (backend)
+Linting	ESLint
+Project Structure
+text
+STRATOSENSE-APP/
+  ├─ public/
+  ├─ src/
+  ├─ server/
+  ├─ models/
+  ├─ package.json
+  ├─ requirements.txt
+  └─ README.md
+Setup
+Frontend
+text
+npm install
+npm run dev
+Backend
+text
+python -m venv venv
+source venv/bin/activate    # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn server.main:app --reload
+Usage
+Visit http://localhost:5173 for the dashboard, live air quality, forecasts, and health alerts.
+
+Contributing
+Pull requests welcome. Please run npm run lint before submitting.
+
+License
+MIT License
+
+STRATOSENSE-APP delivers clear, actionable air quality insights for everyone.
